@@ -69,4 +69,6 @@ export const createTRPCRouter = t.router;
 export const baseProcedure = t.procedure;
 
 export const publicProcedure = baseProcedure.use(timingMiddleware);
-export const privateProcedure = publicProcedure.use(authMiddleware);
+export const privateProcedure = baseProcedure
+	.use(timingMiddleware)
+	.use(authMiddleware);
