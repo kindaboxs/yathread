@@ -10,6 +10,8 @@ model PostVote {
   user  User  @relation("UserPostVotes", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
+  @@index([userId])
+  @@index([postId])
   @@map("post_votes")
 }
 
@@ -25,5 +27,7 @@ model CommentVote {
   user    User    @relation("UserCommentVotes", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([commentId, userId])
+  @@index([userId])
+  @@index([commentId])
   @@map("comment_votes")
 }

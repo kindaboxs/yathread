@@ -1,5 +1,3 @@
-import { cache } from "react";
-
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -7,7 +5,7 @@ import { ZodError } from "zod";
 import { db } from "@/db";
 import { auth } from "@/lib/auth";
 
-export const createTRPCContext = cache(async (opts: { headers: Headers }) => {
+export const createTRPCContext = async (opts: { headers: Headers }) => {
 	const session = await auth.api.getSession({
 		headers: opts.headers,
 	});
@@ -20,7 +18,7 @@ export const createTRPCContext = cache(async (opts: { headers: Headers }) => {
 		},
 		...opts,
 	};
-});
+};
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
 	transformer: superjson,

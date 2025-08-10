@@ -14,5 +14,7 @@ model Post {
   comments Comment[]   @relation("PostComments")
   votes    PostVote[]  @relation("PostVotes")
 
-  @@map("stories")
+  @@index([userId])
+  @@index([createdAt])
+  @@map("posts")
 }

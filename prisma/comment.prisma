@@ -1,7 +1,7 @@
 model Comment {
   id              Int      @id @default(autoincrement())
   userId          String
-  postId         Int
+  postId          Int
   parentCommentId Int?
   content         String
   points          Int      @default(0)
@@ -12,10 +12,13 @@ model Comment {
 
   // relations
   author        User          @relation("UserComments", fields: [userId], references: [id], onDelete: Cascade)
-  posts         Post          @relation("PostComments", fields: [postId], references: [id], onDelete: Cascade)
+  post          Post          @relation("PostComments", fields: [postId], references: [id], onDelete: Cascade)
   parentComment Comment?      @relation("CommentComments", fields: [parentCommentId], references: [id], onDelete: Cascade)
   childComments Comment[]     @relation("CommentComments")
   commentVotes  CommentVote[] @relation("CommentVotes")
 
+  @@index([postId])
+  @@index([userId])
+  @@index([parentCommentId])
   @@map("comments")
 }
