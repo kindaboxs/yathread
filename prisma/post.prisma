@@ -1,0 +1,18 @@
+model Post {
+  id           Int      @id @default(autoincrement())
+  userId       String
+  title        String
+  url          String?
+  content      String?
+  points       Int      @default(0)
+  commentCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // relations
+  author   User        @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+  comments Comment[]   @relation("PostComments")
+  votes    PostVote[]  @relation("PostVotes")
+
+  @@map("stories")
+}

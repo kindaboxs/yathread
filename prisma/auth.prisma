@@ -12,6 +12,10 @@ model User {
   // relations
   sessions        Session[]
   accounts        Account[]
+  posts           Post[]        @relation("UserPosts")
+  comments        Comment[]     @relation("UserComments")
+  postVotes       PostVote[]    @relation("UserPostVotes")
+  commentVotes    CommentVote[] @relation("UserCommentVotes")
 
   @@unique([email])
   @@unique([username])

@@ -1,0 +1,21 @@
+model Comment {
+  id              Int      @id @default(autoincrement())
+  userId          String
+  postId         Int
+  parentCommentId Int?
+  content         String
+  points          Int      @default(0)
+  commentCount    Int      @default(0)
+  depth           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // relations
+  author        User          @relation("UserComments", fields: [userId], references: [id], onDelete: Cascade)
+  posts         Post          @relation("PostComments", fields: [postId], references: [id], onDelete: Cascade)
+  parentComment Comment?      @relation("CommentComments", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  childComments Comment[]     @relation("CommentComments")
+  commentVotes  CommentVote[] @relation("CommentVotes")
+
+  @@map("comments")
+}
