@@ -1,17 +1,24 @@
-import { cache } from "react";
-
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/db";
+import { auth } from "@/lib/auth";
 
-export const createTRPCContext = cache(async (opts: { headers: Headers }) => {
+export const createTRPCContext = async (opts: { headers: Headers }) => {
+	const session = await auth.api.getSession({
+		headers: opts.headers,
+	});
+
 	return {
 		db,
+		auth: {
+			session: session?.session,
+			user: session?.user,
+		},
 		...opts,
 	};
-});
+};
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
 	transformer: superjson,
@@ -44,6 +51,24 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 	return result;
 });
 
+const authMiddleware = t.middleware(async ({ next, ctx }) => {
+	if (!ctx.auth.session || !ctx.auth.user) {
+		throw new TRPCError({
+			code: "UNAUTHORIZED",
+			message: "Not authenticated",
+		});
+	}
+
+	const { session, user } = ctx.auth;
+
+	return next({ ctx: { ...ctx, auth: { session, user } } });
+});
+
 export const createCallerFactory = t.createCallerFactory;
 export const createTRPCRouter = t.router;
-export const baseProcedure = t.procedure.use(timingMiddleware);
+export const baseProcedure = t.procedure;
+
+export const publicProcedure = baseProcedure.use(timingMiddleware);
+export const privateProcedure = baseProcedure
+	.use(timingMiddleware)
+	.use(authMiddleware);

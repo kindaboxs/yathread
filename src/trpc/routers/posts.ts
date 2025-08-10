@@ -1,33 +1,19 @@
-import { z } from "zod";
-
-import { baseProcedure, createTRPCRouter } from "@/trpc/init";
+import { createPostSchema } from "@/modules/post/schemas/create-post-schema";
+import { createTRPCRouter, privateProcedure } from "@/trpc/init";
 
 export const postRouter = createTRPCRouter({
-	hello: baseProcedure
-		.input(z.object({ text: z.string() }))
-		.query(({ input }) => {
-			return {
-				greeting: `Hello ${input.text}`,
-			};
-		}),
-
-	create: baseProcedure
-		.input(z.object({ name: z.string().min(1) }))
+	create: privateProcedure
+		.input(createPostSchema)
 		.mutation(async ({ ctx, input }) => {
-			const post = await ctx.db.post.create({
+			const { title, url, content } = input;
+
+			return await ctx.db.post.create({
 				data: {
-					name: input.name,
+					title,
+					url,
+					content,
+					userId: ctx.auth.user.id,
 				},
 			});
-
-			return post;
 		}),
-
-	getLatest: baseProcedure.query(async ({ ctx }) => {
-		const post = await ctx.db.post.findMany({
-			orderBy: { createdAt: "desc" },
-		});
-
-		return post[0] ?? null;
-	}),
 });
